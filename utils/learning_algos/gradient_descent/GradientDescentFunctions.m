@@ -29,14 +29,16 @@ classdef (Abstract) GradientDescentFunctions < handle
         
         % Prediction Function
         function [activation] = activation(obj, x_inputs, weights)
-            activation = obj.prediction_function.activation(x_inputs, weights);
+            z = x_inputs * weights;
+            activation = obj.prediction_function.activation(z);
         end
         function [prediction] = prediction(obj, x_inputs, weights)
             % Extend x0
             feature_handler = InputFeatureHandler;
             x_inputs = feature_handler.extend_x0(x_inputs);
 
-            prediction = obj.prediction_function.activation(x_inputs, weights);
+            z = x_inputs * weights;
+            prediction = obj.prediction_function.activation(z);
         end
         
         % Penalty Function

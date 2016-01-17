@@ -7,6 +7,9 @@ classdef Layer < handle
 
         input_holder;               % Memory used to hold inputs and save computation
         input_size;                 % Size of input_holder
+
+        activation_holder;          % Memory used to hold activation value z
+        activation_size;            % Size of activation_holder
     end
 
     methods
@@ -28,12 +31,13 @@ classdef Layer < handle
         % Activate layer
         function [outputs] = activation(obj, x_inputs, weights)
             obj.input_holder(:, 2:obj.input_size(2)) = x_inputs;
-            outputs = obj.activation_function.activation(obj.input_holder, weights);
+            obj.activation_holder = obj.input_holder * weights;
+            outputs = obj.activation_function.activation(obj.activation_holder);
         end
         
-        % Back propagate from latter layer
-        function [weights] = back_propagate(obj, outputs)
-            %a;
+        % Calculate error for layer based on weights and errors from latter layer
+        function [output_error] = calculate_error(obj, input_error, weights)
+            output_error = input_error * weights' .* obj.activation_function.derivative(obj.activation_holder);
         end
     end
 

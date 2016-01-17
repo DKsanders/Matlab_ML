@@ -25,7 +25,7 @@ classdef LayeredNetwork < handle
             obj.num_layers = max(temp1, temp2) - 1;
 
             % Create hidden layers
-            for i=1:obj.num_layers
+            for i=1:obj.num_layers-1
                 % Create layers
                 obj.layers{i} = Layer();
                 
@@ -36,20 +36,22 @@ classdef LayeredNetwork < handle
             end
 
             % Create output layer
-            %obj.layers{obj.num_layers} = OutputLayer;
-            %obj.weights{obj.num_layers} = ones(layer_structure(obj.num_layers)+1, layer_structure(obj.num_layers+1));
+            obj.layers{obj.num_layers} = OutputLayer;
+            obj.weights{obj.num_layers} = ones(layer_structure(obj.num_layers)+1, layer_structure(obj.num_layers+1));
+
+            obj.layers{obj.num_layers}.activation_function = SigmoidActivation;
 
         end
 
         % Learn the weights with training input
-        function [weights] = learn(obj, inputs)
+        function [weights] = learn(obj, inputs, outputs)
             % Initialization to speed up computations
             obj.set_memory_matrix_sizes(inputs);
             
             % Learn
-            for i = 1:10
-                obj.forward_propagate(inputs);
-                %obj.backword_propagate();
+            for i = 1:1
+                predictions = obj.forward_propagate(inputs);
+                obj.back_propagate(outputs, predictions);
             end
         end
 
@@ -72,8 +74,14 @@ classdef LayeredNetwork < handle
         end
         
         % Back propagate through the layers
-        function [weights] = back_propagate(obj, outputs)
-            %a;
+        function [] = back_propagate(obj, outputs, predictions)
+            output_error = obj.layers{obj.num_layers}.calculate_error(outputs, predictions);
+            for i=1:obj.num_layers-1
+                j = obj.num_layers-i;
+                [num_inputs, num_outputs] = size(obj.weights{j+1});
+                % Calculate error
+                output_error = obj.layers{j}.calculate_error(output_error, obj.weights{j+1}(2:num_inputs,:));
+            end
         end
     end
 

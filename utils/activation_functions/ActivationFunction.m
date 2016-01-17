@@ -2,6 +2,8 @@
 % The purpose for this class is to enforce the implementation of required functions
 classdef (Abstract) ActivationFunction
 
+    % z = x_inputs * weights
+    
     % x_inputs must be 2D matrix, i x j, where:
     % i = number of cases
     % j = number of features
@@ -14,7 +16,7 @@ classdef (Abstract) ActivationFunction
 
     methods (Abstract)
         % Activation function
-        activation = activation(obj, x_inputs, weights)
+        activation = activation(obj, z)
         % Derivative of activation function w.r.t z(=x*w)
         derivative = derivative(obj, x_inputs, weights)
     end

@@ -4,15 +4,10 @@ classdef SoftmaxActivation < ActivationFunction
 
     methods
         % g_i(z) = e^z_i / Σ e^z_j
-        function [activation] = activation(obj, x_inputs, weights)
-            [num_cases, num_features] = size(x_inputs);
-            [num_features, num_outputs] = size(weights);
-
-            z = x_inputs*weights;
-
+        function [activation] = activation(obj, z)
             e_ij = exp(z);
             s = sum(e_ij, 2);
-            activation = zeros(num_cases, num_outputs);
+            activation = zeros(size(z));
 
             %{ The following can be replaced using bsxfun
             for i=1:num_cases
@@ -23,7 +18,7 @@ classdef SoftmaxActivation < ActivationFunction
         end
 
         % ∂g_i(z)/∂z_j = g_i(z)(δ_ij - g_j(z))
-        function [derivative] = derivative(obj, x_inputs, weights)
+        function [derivative] = derivative(obj, z)
             derivative = 0;
         end
     end
