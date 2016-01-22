@@ -2,12 +2,12 @@
 classdef ZeroPenalty < Penalty
 
     methods
-        function [cost] = cost(obj, lambda, weights)
-            cost = 0;
+        function [cost] = cost(obj, lambda, weights, num_cases)
+            cost = zeros(size(weights));
         end
 
-        function [penalty] = penalty(obj, lambda, weights)
-            penalty = 0;
+        function [penalty] = penalty(obj, lambda, weights, num_cases)
+            penalty = zeros(size(weights));
         end
     end
 

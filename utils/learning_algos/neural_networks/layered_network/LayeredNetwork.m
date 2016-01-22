@@ -20,8 +20,12 @@ classdef LayeredNetwork < handle
         layers;
         num_layers;
 
-        input_holder;               % Memory used to hold inputs and save computation
-        input_size;                 % Size of input_holder
+        % Penalty function used to regularize weights
+        penalty;
+        
+        % Memory used to hold inputs and save computation
+        input_holder;
+        input_size;
     end
 
     methods
@@ -33,6 +37,9 @@ classdef LayeredNetwork < handle
             min_initial_weight = -1;
             max_initial_weight = 1;
             seed = 1;
+
+            % Don't regularize weights by default
+            obj.penalty = ZeroPenalty;
 
             % Get number of layers
             [temp1, temp2] = size(layer_structure);
@@ -128,7 +135,10 @@ classdef LayeredNetwork < handle
             end
 
             for i=1:obj.num_layers
-                obj.weights{i} = obj.weights{i} - obj.hparams.learning_rate * obj.delta{i} / num_cases;
+                % Learning
+                obj.weights{i} = obj.weights{i} - obj.hparams.learning_rate * (obj.delta{i} / num_cases);
+                                % Penalization
+                obj.weights{i} = obj.weights{i} - obj.hparams.learning_rate * obj.penalty.penalty(obj.hparams.penalty, obj.weights{i}, num_cases);
             end
         end
 
