@@ -9,11 +9,11 @@ classdef SoftmaxActivation < ActivationFunction
             s = sum(e_ij, 2);
             activation = zeros(size(z));
 
-            %{ The following can be replaced using bsxfun
-            for i=1:num_cases
-                activation(i,:) = e_ij(i,:)./s(i);
-            end
-            %}
+            % The following can be replaced using bsxfun
+            % for i=1:num_cases
+            %     activation(i,:) = e_ij(i,:)./s(i);
+            % end
+            %
             activation = bsxfun(@ldivide, s, e_ij);
         end
 
