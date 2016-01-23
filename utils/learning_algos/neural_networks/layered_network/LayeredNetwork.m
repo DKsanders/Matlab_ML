@@ -36,7 +36,7 @@ classdef LayeredNetwork < handle
             % Initialization
             min_initial_weight = -1;
             max_initial_weight = 1;
-            seed = 1;
+            seed = 0;
 
             % Don't regularize weights by default
             obj.penalty = ZeroPenalty;
@@ -62,7 +62,7 @@ classdef LayeredNetwork < handle
         end
 
         % Learn the weights with training input
-        function [weights] = learn(obj, hparams, inputs, outputs)
+        function [] = learn(obj, hparams, inputs, outputs)
             obj.hparams = hparams;
 
             % Initialization to speed up computations
