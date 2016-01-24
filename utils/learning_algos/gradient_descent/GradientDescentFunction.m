@@ -44,7 +44,7 @@ classdef (Abstract) GradientDescentFunction < handle
             end
         end
 
-        % Cost Function
+        % Cost functions
         function [cost] = cost(obj, x_inputs, y_outputs)
             % Extend x0
             feature_handler = InputFeatureHandler;
@@ -53,12 +53,11 @@ classdef (Abstract) GradientDescentFunction < handle
             y_predictions = obj.activation(x_inputs);
             cost = obj.cost_function.cost(x_inputs, y_outputs, y_predictions);
         end
-
         function [delta] = descent(obj, x_inputs, y_outputs, y_predictions)
             delta = obj.cost_function.derivative(x_inputs, y_outputs, y_predictions);
         end
         
-        % Prediction Function
+        % Prediction functions
         function [activation] = activation(obj, x_inputs)
             z = x_inputs * obj.weights;
             activation = obj.prediction_function.activation(z);
@@ -68,11 +67,10 @@ classdef (Abstract) GradientDescentFunction < handle
             feature_handler = InputFeatureHandler;
             x_inputs = feature_handler.extend_x0(x_inputs);
 
-            z = x_inputs * obj.weights;
-            prediction = obj.prediction_function.activation(z);
+            prediction = obj.activation(x_inputs);
         end
         
-        % Penalty Function
+        % Penalty function
         function [penalty] = penalty(obj, lambda, num_cases)
             penalty = obj.penalty_function.penalty(lambda, obj.weights, num_cases);
         end
