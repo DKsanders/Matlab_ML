@@ -21,7 +21,7 @@ classdef LayeredNetwork < handle
         num_layers;
 
         % Penalty function used to regularize weights
-        penalty;
+        penalty_function;
         
         % Memory used to hold inputs and save computation
         input_holder;
@@ -32,33 +32,28 @@ classdef LayeredNetwork < handle
 
         % Constructor for layered network
         % Creates layers and initializes weights
-        function [obj] = LayeredNetwork(layer_structure)
+        function [obj] = LayeredNetwork(layer_structure, layers)
             % Initialization
             min_initial_weight = -1;
             max_initial_weight = 1;
             seed = 0;
 
             % Don't regularize weights by default
-            obj.penalty = ZeroPenalty;
+            obj.penalty_function = ZeroPenalty;
 
             % Get number of layers
-            [temp1, temp2] = size(layer_structure);
-            obj.num_layers = max(temp1, temp2) - 1;
+            obj.num_layers = length(layers);
 
             obj.input_size = [0, 0];
 
             % Create hidden layers
-            for i=1:obj.num_layers-1
+            for i=1:obj.num_layers
                 % Create layers
-                obj.layers{i} = Layer();
+                obj.layers{i} = layers{i};
                 
                 % Initialize weights
-                obj.weights{i} = initial_weights_uniform(layer_structure(i)+1, layer_structure(i+1), min_initial_weight, max_initial_weight, seed);
+                obj.weights{i} = initial_weights_uniform(layer_structure{i}+1, layer_structure{i+1}, min_initial_weight, max_initial_weight, seed);
             end
-
-            % Create output layer
-            obj.layers{obj.num_layers} = OutputLayer;
-            obj.weights{obj.num_layers} = initial_weights_uniform(layer_structure(obj.num_layers)+1, layer_structure(obj.num_layers+1), min_initial_weight, max_initial_weight, seed);
         end
 
         % Learn the weights with training input
@@ -138,7 +133,7 @@ classdef LayeredNetwork < handle
                 % Learning
                 obj.weights{i} = obj.weights{i} - obj.hparams.learning_rate * (obj.delta{i} / num_cases);
                                 % Penalization
-                obj.weights{i} = obj.weights{i} - obj.hparams.learning_rate * obj.penalty.penalty(obj.hparams.penalty, obj.weights{i}, num_cases);
+                obj.weights{i} = obj.weights{i} - obj.hparams.learning_rate * obj.penalty_function.penalty(obj.hparams.penalty, obj.weights{i}, num_cases);
             end
         end
 

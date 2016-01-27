@@ -2,7 +2,7 @@
 classdef SoftmaxOutputLayer < OutputLayer
 
     methods
-        % Constructor of Sigmoid Layer class
+        % Constructor of Softmax Layer class
         % Set activation functino to sigmoid
         function [obj] = SoftmaxOutputLayer()
             obj.activation_function = SoftmaxActivation;
