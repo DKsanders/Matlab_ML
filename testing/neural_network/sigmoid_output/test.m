@@ -47,9 +47,9 @@ nn.learn(hparams, x_training_set, y_training_set);
 nn.save_weights('weights.txt');
 
 % Analyze
-%training_err = nn.cost(x_training_set, y_training_set)
-%validation_err = nn.cost(x_validation_set, y_validation_set)
-%test_err = nn.cost(x_test_set, y_test_set)
+training_err = nn.cost(x_training_set, y_training_set)
+validation_err = nn.cost(x_validation_set, y_validation_set)
+test_err = nn.cost(x_test_set, y_test_set)
 
 % Plot
 x_axis = linspace(0, 10 , 1000)';

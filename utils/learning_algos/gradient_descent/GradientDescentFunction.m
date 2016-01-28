@@ -46,11 +46,7 @@ classdef (Abstract) GradientDescentFunction < handle
 
         % Cost functions
         function [cost] = cost(obj, x_inputs, y_outputs)
-            % Extend x0
-            feature_handler = InputFeatureHandler;
-            x_inputs = feature_handler.extend_x0(x_inputs);
-            
-            y_predictions = obj.activation(x_inputs);
+            y_predictions = obj.predict(x_inputs);
             cost = obj.cost_function.cost(x_inputs, y_outputs, y_predictions);
         end
         function [delta] = descent(obj, x_inputs, y_outputs, y_predictions)

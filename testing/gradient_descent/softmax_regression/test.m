@@ -32,8 +32,8 @@ x_test_set = feature_handler.scale_dataset(x_test_set);
 
 % Initialize Hyperparams
 hparams = Hyperparams;
-hparams.learning_rate = 0.003;
-hparams.num_iteration = 10000;
+hparams.learning_rate = 0.03;
+hparams.num_iteration = 100000;
 hparams.penalty = 0.05;
 
 % Run learning algorithm

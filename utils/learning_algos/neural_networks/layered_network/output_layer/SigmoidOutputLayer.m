@@ -6,6 +6,7 @@ classdef SigmoidOutputLayer < OutputLayer
         % Set activation functino to sigmoid
         function [obj] = SigmoidOutputLayer()
             obj.activation_function = SigmoidActivation;
+            obj.cost_function = CrossEntropyCostFunction;
         end
     end
 end

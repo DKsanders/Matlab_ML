@@ -8,7 +8,13 @@ classdef OutputLayer < Layer
     methods
         % Calculate error for layer based on weights and errors from latter layer
         function [output_error] = calculate_error(obj, output, prediction)
-            obj.error_holder = 2*(prediction - output);
+            obj.error_holder = obj.cost_function.calculate_error(output, prediction);
+            output_error = obj.error_holder;
+        end
+
+        % Calculate cost using cost function
+        function [output_error] = cost(obj, output, prediction)
+            obj.error_holder = obj.cost_function.calculate_error(output, prediction);
             output_error = obj.error_holder;
         end
     end

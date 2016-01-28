@@ -143,6 +143,12 @@ classdef LayeredNetwork < handle
             outputs = obj.forward_propagate(inputs);
         end
 
+        % Cost function
+        function [cost] = cost(obj, x_inputs, y_outputs)
+            y_predictions = obj.predict(x_inputs);
+            cost = obj.layers{obj.num_layers}.cost_function.cost(x_inputs, y_outputs, y_predictions);
+        end
+
         % Save weights learned by neural network in a file
         function [] = save_weights(obj, file_name);
             save_weights(file_name, obj.weights);
