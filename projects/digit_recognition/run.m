@@ -54,17 +54,19 @@ nn_neurons = {num_features, 1000, 1000, 10};
 nn_layers = {SigmoidLayer, SigmoidLayer, SoftmaxOutputLayer};
 nn = LayeredNetwork(nn_neurons, nn_layers);
 %nn.penalty_function = Ridge;
-%nn.restore_weights('weights.txt');
-nn.learn(hparams, x_training_set, y_training_set);
-nn.save_weights('weights.weights');
+nn.restore_weights('426.weights');
+%nn.learn(hparams, x_training_set, y_training_set);
+%nn.save_weights('weights.weights');
 
 % Analyze
 training_predictions = nn.predict(x_training_set);
 [temp1, temp2] = max(training_predictions');
-training_guessses = temp2' - 1;
-training_err = sum((training_guessses - y_training_set) > 0)
+training_guesses = temp2' - 1;
+training_mistakes = (training_guesses - y_training_set) ~= 0;
+training_err = sum(training_mistakes)
 
 test_predictions = nn.predict(x_test_set);
 [temp1, temp2] = max(test_predictions');
-test_guessses = temp2' - 1;
-test_err = sum((test_guessses - y_test_set) > 0)
+test_guesses = temp2' - 1;
+test_mistakes = (test_guesses - y_test_set) ~= 0;
+test_err = sum(test_mistakes)
