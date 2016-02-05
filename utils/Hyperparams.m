@@ -1,6 +1,6 @@
 
 % Hyper-Parameters
-classdef Hyperparams
+classdef Hyperparams < handle
 	properties
 		learning_rate;
 		momentum;
@@ -11,7 +11,7 @@ classdef Hyperparams
 	end
 
 	 methods
-        function [obj] = hyperparams()
+        function [obj] = Hyperparams()
         	obj.learning_rate = 0.01;
 			obj.momentum = 0;
 			obj.penalty = 0;

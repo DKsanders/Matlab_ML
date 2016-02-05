@@ -35,6 +35,7 @@ hparams = Hyperparams;
 hparams.learning_rate = 0.03;
 hparams.num_iteration = 10000;
 hparams.penalty = 0.05;
+hparams.batch_size = 10;
 
 % Run learning algorithm
 [num_test_cases, num_features] = size(x_training_set);
@@ -42,9 +43,9 @@ nn_neurons = {num_features, 10*num_features, 10*num_features, 10*num_features, 1
 nn_layers = {SigmoidLayer, SigmoidLayer, SigmoidLayer, SigmoidOutputLayer};
 nn = LayeredNetwork(nn_neurons, nn_layers);
 nn.penalty_function = Ridge;
-nn.restore_weights('weights.txt');
+%nn.restore_weights('weights.txt');
 nn.learn(hparams, x_training_set, y_training_set);
-nn.save_weights('weights.txt');
+%nn.save_weights('weights.txt');
 
 % Analyze
 training_err = nn.cost(x_training_set, y_training_set)

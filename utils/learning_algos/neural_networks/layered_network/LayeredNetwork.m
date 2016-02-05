@@ -58,34 +58,40 @@ classdef LayeredNetwork < handle
 
         % Learn the weights with training input
         function [] = learn(obj, hparams, inputs, outputs)
+            % Initialization
+            [num_cases, num_features] = size(inputs);
             obj.hparams = hparams;
+            if (obj.hparams.batch_size == 0)
+                obj.hparams.batch_size = num_cases;
+            end
 
             % Initialization to speed up computations
-            obj.set_memory_matrix_sizes(inputs);
-            obj.input_holder(:,2:obj.input_size(2)) = inputs;
+            obj.set_memory_matrix_sizes(obj.hparams.batch_size, num_features);
 
             % Learn
             for i = 1:obj.hparams.num_iteration
+                % Fetch input batch
+                random_indices = randperm(num_cases, obj.hparams.batch_size)';
+                obj.input_holder(:,2:obj.input_size(2)) = inputs(random_indices, :);
+                
+                % Learn
                 obj.initialize_delta();
-                predictions = obj.forward_propagate(inputs);
-                obj.back_propagate(outputs, predictions);
+                predictions = obj.forward_propagate(obj.input_holder(:,2:obj.input_size(2)));
+                obj.back_propagate(outputs(random_indices, :), predictions);
                 obj.adjust_weights();
             end
         end
 
         % Resize temporary matrices to speed up iterations
-        function [outputs] = set_memory_matrix_sizes(obj, x_inputs)
-            [num_cases, num_features] = size(x_inputs);
-
-            if ~( num_cases == obj.input_size(1) && num_features+1 == obj.input_size(2))
-                obj.input_holder = ones(num_cases, num_features+1);
-                obj.input_holder(:,2:num_features+1) = x_inputs;
-                obj.input_size = [num_cases, num_features+1];
+        function [outputs] = set_memory_matrix_sizes(obj, batch_size, num_features)
+            if ~( (batch_size == obj.input_size(1)) && (num_features+1 == obj.input_size(2)) )
+                obj.input_holder = ones(batch_size, num_features+1);
+                obj.input_size = [batch_size, num_features+1];
             end
 
             for i=1:obj.num_layers
                 [num_inputs, num_outputs] = size(obj.weights{i});
-                obj.layers{i}.set_memory_matrix_sizes(num_cases, num_inputs, num_outputs);
+                obj.layers{i}.set_memory_matrix_sizes(batch_size, num_inputs, num_outputs);
             end
         end
 
@@ -139,7 +145,8 @@ classdef LayeredNetwork < handle
 
         % Output prediction of neural network
         function [outputs] = predict(obj, inputs)
-            obj.set_memory_matrix_sizes(inputs);
+            [num_cases, num_features] = size(inputs);
+            obj.set_memory_matrix_sizes(num_cases, num_features);
             outputs = obj.forward_propagate(inputs);
         end
 

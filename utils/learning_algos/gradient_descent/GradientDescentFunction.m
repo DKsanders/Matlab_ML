@@ -33,14 +33,22 @@ classdef (Abstract) GradientDescentFunction < handle
             x_training_set = feature_handler.extend_x0(x_training_set);
 
             [num_cases, num_features] = size(x_training_set);
+            if (hyperparams.batch_size > 0)
+                hyperparams.batch_size = num_cases;
+            end
+
             for i=1:hyperparams.num_iteration
+                % Fetch input batch
+                random_indices = randperm(num_cases, obj.hparams.batch_size)';
+                inputs = x_training_set(random_indices, :);
+
                 % Gradient Descent
-                y_prediction = obj.activation(x_training_set);
-                delta = obj.descent(x_training_set, y_training_set, y_prediction);
+                y_prediction = obj.activation(inputs);
+                delta = obj.descent(inputs, y_training_set, y_prediction);
                 obj.weights = obj.weights - hyperparams.learning_rate * delta;
 
                 % Penalization
-                obj.weights = obj.weights - hyperparams.learning_rate * obj.penalty(hyperparams.penalty, num_cases);
+                obj.weights = obj.weights - hyperparams.learning_rate * obj.penalty(hyperparams.penalty, hyperparams.batch_size);
             end
         end
 
