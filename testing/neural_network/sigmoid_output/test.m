@@ -1,4 +1,4 @@
-% Backbone for machine learning program
+% Run to verify Sigmoid output neural netwrok works
 % David Sanders
 
 % Initialize

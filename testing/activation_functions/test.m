@@ -1,4 +1,5 @@
-% Backbone for machine learning program
+% Testing code to verify that activation functions are implemented
+% correctly
 % David Sanders
 
 % Initialize

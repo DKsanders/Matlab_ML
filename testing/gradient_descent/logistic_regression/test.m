@@ -1,4 +1,4 @@
-% Backbone for machine learning program
+% Run to verify logistic regression works
 % David Sanders
 
 % Initialize
