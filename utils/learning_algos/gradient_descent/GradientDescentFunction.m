@@ -3,6 +3,7 @@
 classdef (Abstract) GradientDescentFunction < handle
 
     properties
+        hparams;                    % Hyperparameters
         cost_function;              % Cost function used in gradient descent
         prediction_function;        % Prediction function used in gradient descent
         penalty_function;           % Penalty function used in gradient descent
@@ -27,28 +28,31 @@ classdef (Abstract) GradientDescentFunction < handle
         %  hyperparams: Hyperparams object
         %  x_training_set: Training set inputs
         %  y_training_set: Training set outputs
-        function [] = learn(obj, hyperparams, x_training_set, y_training_set)
+        function [] = learn(obj, hparams, x_training_set, y_training_set)
+            % Save hyperparameters
+            obj.hparams = hparams;
+
             % Extend x0
             feature_handler = InputFeatureHandler;
             x_training_set = feature_handler.extend_x0(x_training_set);
 
             [num_cases, num_features] = size(x_training_set);
-            if (hyperparams.batch_size > 0)
-                hyperparams.batch_size = num_cases;
+            if (obj.hparams.batch_size == 0)
+                obj.hparams.batch_size = num_cases;
             end
 
-            for i=1:hyperparams.num_iteration
+            for i=1:obj.hparams.num_iteration
                 % Fetch input batch
                 random_indices = randperm(num_cases, obj.hparams.batch_size)';
                 inputs = x_training_set(random_indices, :);
 
                 % Gradient Descent
                 y_prediction = obj.activation(inputs);
-                delta = obj.descent(inputs, y_training_set, y_prediction);
-                obj.weights = obj.weights - hyperparams.learning_rate * delta;
+                delta = obj.descent(inputs, y_training_set(random_indices, :), y_prediction);
+                obj.weights = obj.weights - obj.hparams.learning_rate * delta;
 
                 % Penalization
-                obj.weights = obj.weights - hyperparams.learning_rate * obj.penalty(hyperparams.penalty, hyperparams.batch_size);
+                obj.weights = obj.weights - obj.hparams.learning_rate * obj.penalty(obj.hparams.penalty, obj.hparams.batch_size);
             end
         end
 
