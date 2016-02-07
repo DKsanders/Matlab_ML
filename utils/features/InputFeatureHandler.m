@@ -35,7 +35,6 @@ classdef InputFeatureHandler < handle
 
             % Find how many features there are in the extended set
             output_num_features = count_num_features(original_num_features, obj.order) - 1;
-            obj.num_features = output_num_features;
 
             % Generate output vector
             output_set = zeros(num_cases, output_num_features);
@@ -61,11 +60,13 @@ classdef InputFeatureHandler < handle
                     output_set(:,(i-1)*k+j) = input_set(:,i).^j;
                 end
             end
-            obj.num_features = k*num_features;
         end
 
         % Get the myu and sigma for the data set
         function [] = get_scaling_params(obj, input_set)
+            [num_cases, num_features] = size(input_set);
+            obj.num_features = num_features;
+
             obj.myu = mean(input_set(:,1:obj.num_features));
             obj.sigma = sqrt(var(input_set(:,1:obj.num_features)));
         end
