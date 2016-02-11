@@ -69,6 +69,12 @@ classdef LayeredNetwork < handle
             obj.set_memory_matrix_sizes(obj.hparams.batch_size, num_features);
 
             % Learn
+            global_learning_rate = obj.hparams.learning_rate;
+            if (obj.hparams.learning_rate == 0)
+                global_learning_rate = 1;
+                prev_cost = 0;
+            end
+
             for i = 1:obj.hparams.num_iteration
                 % Fetch input batch
                 random_indices = randperm(num_cases, obj.hparams.batch_size)';
@@ -78,7 +84,25 @@ classdef LayeredNetwork < handle
                 obj.initialize_delta();
                 predictions = obj.forward_propagate(obj.input_holder(:,2:obj.input_size(2)));
                 obj.back_propagate(outputs(random_indices, :), predictions);
-                obj.adjust_weights();
+
+                % Dynamic update of learning rate
+                if (obj.hparams.learning_rate == 0)
+                    current_cost = obj.layers{obj.num_layers}.cost_function.cost(obj.input_holder(:,2:obj.input_size(2)), outputs(random_indices, :), predictions);
+                    if (current_cost < prev_cost)
+                        global_learning_rate = global_learning_rate * 1.01;
+                    else
+                        global_learning_rate = global_learning_rate / 2;
+                    end
+                    prev_cost = current_cost;
+                end
+                if (obj.hparams.annealing_constant == 0)
+                    annealing = 1;
+                else
+                    annealing = (1 + i/obj.hparams.annealing_constant);
+                end 
+                learning_rate = global_learning_rate / annealing;
+
+                obj.adjust_weights(learning_rate);
             end
         end
 
@@ -126,7 +150,7 @@ classdef LayeredNetwork < handle
             end
         end
 
-        function [] = adjust_weights(obj)
+        function [] = adjust_weights(obj, learning_rate)
             [num_cases, num_features] = size(obj.input_holder);
             for i=1:num_cases
                 obj.delta{1} = obj.delta{1} + obj.input_holder(i,:)' * obj.layers{1}.error_holder(i,:);
@@ -137,9 +161,9 @@ classdef LayeredNetwork < handle
 
             for i=1:obj.num_layers
                 % Learning
-                obj.weights{i} = obj.weights{i} - obj.hparams.learning_rate * (obj.delta{i} / num_cases);
-                                % Penalization
-                obj.weights{i} = obj.weights{i} - obj.hparams.learning_rate * obj.penalty_function.penalty(obj.hparams.penalty, obj.weights{i}, num_cases);
+                obj.weights{i} = obj.weights{i} - learning_rate * (obj.delta{i} / num_cases);
+                % Penalization
+                obj.weights{i} = obj.weights{i} - learning_rate * obj.penalty_function.penalty(obj.hparams.penalty, obj.weights{i}, num_cases);
             end
         end
 

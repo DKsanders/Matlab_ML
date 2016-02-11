@@ -28,7 +28,7 @@ classdef (Abstract) GradientDescentFunction < handle
         %  hyperparams: Hyperparams object
         %  x_training_set: Training set inputs
         %  y_training_set: Training set outputs
-        function [] = learn(obj, hparams, x_training_set, y_training_set)
+        function [cost] = learn(obj, hparams, x_training_set, y_training_set)
             % Save hyperparameters
             obj.hparams = hparams;
 
@@ -41,6 +41,12 @@ classdef (Abstract) GradientDescentFunction < handle
                 obj.hparams.batch_size = num_cases;
             end
 
+            global_learning_rate = obj.hparams.learning_rate;
+            if (obj.hparams.learning_rate == 0)
+                global_learning_rate = 1;
+                prev_cost = 0;
+            end
+
             for i=1:obj.hparams.num_iteration
                 % Fetch input batch
                 random_indices = randperm(num_cases, obj.hparams.batch_size)';
@@ -49,10 +55,29 @@ classdef (Abstract) GradientDescentFunction < handle
                 % Gradient Descent
                 y_prediction = obj.activation(inputs);
                 delta = obj.descent(inputs, y_training_set(random_indices, :), y_prediction);
-                obj.weights = obj.weights - obj.hparams.learning_rate * delta;
+                
+                % Dynamic update of learning rate
+                if (obj.hparams.learning_rate == 0)
+                    current_cost = obj.cost_function.cost(inputs, y_training_set(random_indices, :), y_prediction);
+                    if (current_cost < prev_cost)
+                        global_learning_rate = global_learning_rate * 1.01;
+                    else
+                        global_learning_rate = global_learning_rate / 2;
+                    end
+                    prev_cost = current_cost;
+                end
+                if (obj.hparams.learning_rate == 0)
+                    annealing = 1;
+                else
+                    annealing = (1 + i/obj.hparams.annealing_constant);
+                end 
+                learning_rate = global_learning_rate / annealing;
+
+                % Weight updates
+                obj.weights = obj.weights - learning_rate * delta;
 
                 % Penalization
-                obj.weights = obj.weights - obj.hparams.learning_rate * obj.penalty(obj.hparams.penalty, obj.hparams.batch_size);
+                obj.weights = obj.weights - learning_rate * obj.penalty(obj.hparams.penalty, obj.hparams.batch_size);
             end
         end
 
