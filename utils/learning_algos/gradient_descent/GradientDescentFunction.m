@@ -36,17 +36,24 @@ classdef (Abstract) GradientDescentFunction < handle
             feature_handler = InputFeatureHandler;
             x_training_set = feature_handler.extend_x0(x_training_set);
 
+            % Initialization
+            % Initialize batch size
             [num_cases, num_features] = size(x_training_set);
             if (obj.hparams.batch_size == 0)
                 obj.hparams.batch_size = num_cases;
             end
 
+            % Initialize global learning rate
             global_learning_rate = obj.hparams.learning_rate;
             if (obj.hparams.learning_rate == 0)
                 global_learning_rate = 1;
                 prev_cost = 0;
             end
 
+            % Initialize momentum
+            momentum = zeros(size(obj.weights));
+
+            % Learn
             for i=1:obj.hparams.num_iteration
                 % Fetch input batch
                 random_indices = randperm(num_cases, obj.hparams.batch_size)';
@@ -66,7 +73,7 @@ classdef (Abstract) GradientDescentFunction < handle
                     end
                     prev_cost = current_cost;
                 end
-                if (obj.hparams.learning_rate == 0)
+                if (obj.hparams.annealing_constant == 0)
                     annealing = 1;
                 else
                     annealing = (1 + i/obj.hparams.annealing_constant);
@@ -74,7 +81,11 @@ classdef (Abstract) GradientDescentFunction < handle
                 learning_rate = global_learning_rate / annealing;
 
                 % Weight updates
-                obj.weights = obj.weights - learning_rate * delta;
+                % Momentum            
+                momentum = obj.hparams.momentum * momentum + delta;
+
+                % Learning
+                obj.weights = obj.weights - learning_rate * momentum;
 
                 % Penalization
                 obj.weights = obj.weights - learning_rate * obj.penalty(obj.hparams.penalty, obj.hparams.batch_size);

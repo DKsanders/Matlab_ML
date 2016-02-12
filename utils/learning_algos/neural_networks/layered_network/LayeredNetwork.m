@@ -12,6 +12,9 @@ classdef LayeredNetwork < handle
         % kth layer with i units to (k+1)th layer with j units 
         weights;
 
+        % Momentum
+        momentum;
+
         % Δ{k}(i,j)
         delta;
 
@@ -50,7 +53,7 @@ classdef LayeredNetwork < handle
             for i=1:obj.num_layers
                 % Create layers
                 obj.layers{i} = layers{i};
-                
+
                 % Initialize weights
                 obj.weights{i} = initial_weights_uniform(layer_structure{i}+1, layer_structure{i+1}, min_initial_weight, max_initial_weight, seed);
             end
@@ -59,6 +62,7 @@ classdef LayeredNetwork < handle
         % Learn the weights with training input
         function [] = learn(obj, hparams, inputs, outputs)
             % Initialization
+            % Initialize batch size
             [num_cases, num_features] = size(inputs);
             obj.hparams = hparams;
             if (obj.hparams.batch_size == 0)
@@ -68,13 +72,17 @@ classdef LayeredNetwork < handle
             % Initialization to speed up computations
             obj.set_memory_matrix_sizes(obj.hparams.batch_size, num_features);
 
-            % Learn
+            % Initialize global learning rate
             global_learning_rate = obj.hparams.learning_rate;
             if (obj.hparams.learning_rate == 0)
                 global_learning_rate = 1;
                 prev_cost = 0;
             end
 
+            % Initialize momentum
+            obj.initialize_momentum();
+
+            % Learn
             for i = 1:obj.hparams.num_iteration
                 % Fetch input batch
                 random_indices = randperm(num_cases, obj.hparams.batch_size)';
@@ -119,13 +127,21 @@ classdef LayeredNetwork < handle
             end
         end
 
-        % Initialize delta to 0
-        function [outputs] = initialize_delta(obj)
+        % Initialize momentum
+        function [outputs] = initialize_momentum(obj)
             for i=1:obj.num_layers
-                obj.delta{i} = zeros(size(obj.weights{i}));
+                % Initialize momentum
+                obj.momentum{i} = zeros(size(obj.weights{i}));
             end
         end
 
+        % Initialize delta
+        function [outputs] = initialize_delta(obj)
+            for i=1:obj.num_layers
+                % Initialize delta
+                obj.delta{i} = zeros(size(obj.weights{i}));
+            end
+        end
 
         % Forward propagate through the layers
         function [outputs] = forward_propagate(obj, x_inputs)
@@ -152,6 +168,8 @@ classdef LayeredNetwork < handle
 
         function [] = adjust_weights(obj, learning_rate)
             [num_cases, num_features] = size(obj.input_holder);
+
+            % Get delta
             for i=1:num_cases
                 obj.delta{1} = obj.delta{1} + obj.input_holder(i,:)' * obj.layers{1}.error_holder(i,:);
                 for j=2:obj.num_layers
@@ -159,9 +177,14 @@ classdef LayeredNetwork < handle
                 end
             end
 
+            % Update weights for each layer
             for i=1:obj.num_layers
+                % Momentum            
+                obj.momentum{i} = obj.hparams.momentum * obj.momentum{i} + obj.delta{i};
+
                 % Learning
-                obj.weights{i} = obj.weights{i} - learning_rate * (obj.delta{i} / num_cases);
+                obj.weights{i} = obj.weights{i} - learning_rate * obj.momentum{i} / num_cases;
+
                 % Penalization
                 obj.weights{i} = obj.weights{i} - learning_rate * obj.penalty_function.penalty(obj.hparams.penalty, obj.weights{i}, num_cases);
             end
