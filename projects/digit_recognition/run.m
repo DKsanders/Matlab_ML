@@ -43,20 +43,26 @@ x_test_set = x_test_set > 127;
 
 % Initialize Hyperparams
 hparams = Hyperparams;
+hparams.min_initial_weight = -1;
+hparams.max_initial_weight = 1;
+hparams.seed = 0;
+hparams.num_iteration = 1000;
 hparams.learning_rate = 0.03;
-hparams.num_iteration = 1;
+hparams.annealing_constant = 0;
+hparams.momentum = 0.9;
 hparams.penalty = 0.05;
-hparams.batch_size = 1000;
-
+hparams.batch_size = 100;
+%obj.dropout_rate = 0;
+            
 % Run learning algorithm
 [num_test_cases, num_features] = size(x_training_set);
 nn_neurons = {num_features, 1000, 1000, 10};
 nn_layers = {SigmoidLayer, SigmoidLayer, SoftmaxOutputLayer};
 nn = LayeredNetwork(nn_neurons, nn_layers);
-%nn.penalty_function = Ridge;
-nn.restore_weights('426.weights');
-%nn.learn(hparams, x_training_set, y_training_set);
-%nn.save_weights('weights.weights');
+nn.penalty_function = Ridge;
+nn.restore_weights('architecture2.weights');
+nn.learn(hparams, x_training_set, y_training_set);
+nn.save_weights('architecture2.weights');
 
 % Analyze
 training_predictions = nn.predict(x_training_set);
