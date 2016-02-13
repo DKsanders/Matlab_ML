@@ -8,6 +8,8 @@ classdef (Abstract) GradientDescentFunction < handle
         prediction_function;        % Prediction function used in gradient descent
         penalty_function;           % Penalty function used in gradient descent
         weights;                    % weights(i,j) represents weight going from input i to output j
+        num_inputs;                 % Number of inputs
+        num_outputs;                % Number of outputs
     end
 
     methods
@@ -15,6 +17,10 @@ classdef (Abstract) GradientDescentFunction < handle
         function [obj] = GradientDescentFunction()
             % Set penalty function to zero function 
             obj.penalty_function = ZeroPenalty;
+
+            % Initialize number of inputs/outputs to 0
+            obj.num_inputs = 0;
+            obj.num_outputs = 0;
         end
         
         % Learn using gradient descent
@@ -27,6 +33,14 @@ classdef (Abstract) GradientDescentFunction < handle
             [num_cases, num_inputs] = size(x_training_set);
             [num_cases, num_outputs] = size(y_training_set);
 
+            % If number of inputs or ouputs is unspecified, override
+            if (obj.num_inputs == 0)
+                obj.num_inputs = num_inputs;
+            end
+            if (obj.num_outputs == 0)
+                obj.num_outputs = num_outputs;
+            end
+
             % Save hyperparameters
             obj.hparams = hparams;
 
@@ -35,8 +49,10 @@ classdef (Abstract) GradientDescentFunction < handle
             x_training_set = feature_handler.extend_x0(x_training_set);
 
             % Initialization
-            % Initialize weights
-            obj.weights = initial_weights_uniform(num_inputs+1, num_outputs, obj.hparams.min_initial_weight, obj.hparams.max_initial_weight, obj.hparams.seed);
+            % Initialize weights if weights are uninitialized
+            if (sum(sum(obj.weights ~= 0)) == 0)
+                obj.weights = initial_weights_uniform(obj.num_inputs+1, obj.num_outputs, obj.hparams.min_initial_weight, obj.hparams.max_initial_weight, obj.hparams.seed);
+            end
 
             % Initialize batch size
             [num_cases, num_features] = size(x_training_set);
