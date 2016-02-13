@@ -2,9 +2,7 @@
 classdef LinearRegression < GradientDescentFunction
 
     methods 
-        function [obj] = LinearRegression(num_inputs, num_outputs)
-            obj@GradientDescentFunction(num_inputs, num_outputs);
-
+        function [obj] = LinearRegression()
             obj.cost_function = WeightedSumOfSquares;
             obj.prediction_function = LinearActivation;
         end

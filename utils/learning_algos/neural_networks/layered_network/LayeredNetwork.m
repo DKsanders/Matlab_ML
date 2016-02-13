@@ -36,11 +36,6 @@ classdef LayeredNetwork < handle
         % Constructor for layered network
         % Creates layers and initializes weights
         function [obj] = LayeredNetwork(layer_structure, layers)
-            % Initialization
-            min_initial_weight = -1;
-            max_initial_weight = 1;
-            seed = 0;
-
             % Don't regularize weights by default
             obj.penalty_function = ZeroPenalty;
 
@@ -55,7 +50,7 @@ classdef LayeredNetwork < handle
                 obj.layers{i} = layers{i};
 
                 % Initialize weights
-                obj.weights{i} = initial_weights_uniform(layer_structure{i}+1, layer_structure{i+1}, min_initial_weight, max_initial_weight, seed);
+                obj.weights{i} = zeros(layer_structure{i}+1, layer_structure{i+1});
             end
         end
 
@@ -79,8 +74,8 @@ classdef LayeredNetwork < handle
                 prev_cost = 0;
             end
 
-            % Initialize momentum
-            obj.initialize_momentum();
+            % Initialize parameters
+            obj.initialize_learning_params();
 
             % Learn
             for i = 1:obj.hparams.num_iteration
@@ -127,11 +122,18 @@ classdef LayeredNetwork < handle
             end
         end
 
-        % Initialize momentum
-        function [outputs] = initialize_momentum(obj)
+        % Initialize parameters
+        function [outputs] = initialize_learning_params(obj)
             for i=1:obj.num_layers
+                [inputs, outputs] = size(obj.weights{i});
+
+                % Initialize weights if weights are uninitialized
+                if (sum(sum(obj.weights{i} ~= 0)) == 0)
+                    obj.weights{i} = initial_weights_uniform(inputs, outputs, obj.hparams.min_initial_weight, obj.hparams.max_initial_weight, obj.hparams.seed);
+                end
+
                 % Initialize momentum
-                obj.momentum{i} = zeros(size(obj.weights{i}));
+                obj.momentum{i} = zeros(inputs, outputs);
             end
         end
 

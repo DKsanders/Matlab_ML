@@ -12,13 +12,7 @@ classdef (Abstract) GradientDescentFunction < handle
 
     methods
         % Default function for penalty - no penalization
-        function [obj] = GradientDescentFunction(num_inputs, num_outputs)
-            % Initialize weights
-            min_initial_weight = -1;
-            max_initial_weight = 1;
-            seed = 0;
-            obj.weights = initial_weights_uniform(num_inputs+1, num_outputs, min_initial_weight, max_initial_weight, seed);
-
+        function [obj] = GradientDescentFunction()
             % Set penalty function to zero function 
             obj.penalty_function = ZeroPenalty;
         end
@@ -29,6 +23,10 @@ classdef (Abstract) GradientDescentFunction < handle
         %  x_training_set: Training set inputs
         %  y_training_set: Training set outputs
         function [cost] = learn(obj, hparams, x_training_set, y_training_set)
+            % Get input and output sizes
+            [num_cases, num_inputs] = size(x_training_set);
+            [num_cases, num_outputs] = size(y_training_set);
+
             % Save hyperparameters
             obj.hparams = hparams;
 
@@ -37,6 +35,9 @@ classdef (Abstract) GradientDescentFunction < handle
             x_training_set = feature_handler.extend_x0(x_training_set);
 
             % Initialization
+            % Initialize weights
+            obj.weights = initial_weights_uniform(num_inputs+1, num_outputs, obj.hparams.min_initial_weight, obj.hparams.max_initial_weight, obj.hparams.seed);
+
             % Initialize batch size
             [num_cases, num_features] = size(x_training_set);
             if (obj.hparams.batch_size == 0)
