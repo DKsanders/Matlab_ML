@@ -32,10 +32,16 @@ x_test_set = feature_handler.scale_dataset(x_test_set);
 
 % Initialize Hyperparams
 hparams = Hyperparams;
-hparams.learning_rate = 0.03;
-hparams.num_iteration = 10000;
+hparams.min_initial_weight = -1;
+hparams.max_initial_weight = 1;
+hparams.seed = 0;
+hparams.num_iteration = 1000;
+hparams.learning_rate = 0.08;
+hparams.annealing_constant = 0;
+hparams.momentum = 0.9;
 hparams.penalty = 0.05;
-hparams.batch_size = 10;
+hparams.batch_size = 0;
+%obj.dropout_rate = 0;
 
 % Run learning algorithm
 [num_test_cases, num_features] = size(x_training_set);

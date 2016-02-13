@@ -32,18 +32,25 @@ x_test_set = feature_handler.scale_dataset(x_test_set);
 
 % Initialize Hyperparams
 hparams = Hyperparams;
+hparams.min_initial_weight = -1;
+hparams.max_initial_weight = 1;
+hparams.seed = 0;
+hparams.num_iteration = 100000;
 hparams.learning_rate = 0.03;
-hparams.num_iteration = 10000;
-hparams.penalty = 0.005;
+hparams.annealing_constant = 0;
+hparams.momentum = 0.9;
+hparams.penalty = 0.05;
+hparams.batch_size = 0;
+%obj.dropout_rate = 0;
 
 % Run learning algorithm
 [num_test_cases, num_features] = size(x_training_set);
-gd = LinearRegression(num_features, 1);
+gd = LinearRegression();
 gd.penalty_function = Ridge;
-gd.restore_weights('weights.txt')
+%gd.restore_weights('weights.txt')
 %gd.normal_equation(x_training_set, y_training_set);
 gd.learn(hparams, x_training_set, y_training_set);
-gd.save_weights('weights.txt')
+%gd.save_weights('weights.txt')
 
 % Analyze
 training_err = gd.cost(x_training_set, y_training_set)
