@@ -13,6 +13,9 @@ classdef Layer < handle
 
         error_holder;               % Memory used to hold errors
         error_size;                 % Size of error_holder
+
+        activation_holder;          % Memory used to hold sigmoid activation
+        activation_size;            % Size of activation_holder
     end
 
     methods
@@ -21,6 +24,7 @@ classdef Layer < handle
         function [obj] = Layer()
             obj.input_size = [0, 0];
             obj.weighted_input_size = [0, 0];
+            obj.activation_size = [0, 0];
         end
 
         % Resize temporary matrices to speed up iterations
@@ -31,18 +35,30 @@ classdef Layer < handle
                 obj.input_size = [num_cases, num_inputs];
             end
 
-            % Resize matrix for holding activations
+            % Resize matrix for holding weighted input z = w * x
             if ~( num_cases == obj.weighted_input_size(1) && num_outputs == obj.weighted_input_size(2))
                 obj.weighted_input_holder = ones(num_cases, num_outputs+1);
                 obj.weighted_input_size = [num_cases, num_outputs+1];
             end
+
+            % Resize matrix for holding activations
+            if ~( num_cases == obj.activation_size(1) && num_outputs == obj.activation_size(2))
+                obj.activation_holder = ones(num_cases, num_outputs+1);
+                obj.activation_size = [num_cases, num_outputs+1];
+            end
         end
 
         % Activate layer
-        function [outputs] = activation(obj, x_inputs, weights)
+        function [outputs] = activation(obj, x_inputs, weights, dropout_rate)
+            % Get inputs, calculate z = w * x
             obj.input_holder(:, 2:obj.input_size(2)) = x_inputs;
             obj.weighted_input_holder(:, 2:obj.weighted_input_size(2)) = obj.input_holder * weights;
+            
+            % Activate 
             outputs = obj.activation_function.activation(obj.weighted_input_holder(:, 2:obj.weighted_input_size(2)));
+
+            % Save activations
+            obj.activation_holder(:, 2:obj.activation_size(2)) = outputs;
         end
         
         % Calculate error for layer based on weights and errors from latter layer

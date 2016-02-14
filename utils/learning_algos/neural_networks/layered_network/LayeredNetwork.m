@@ -85,7 +85,7 @@ classdef LayeredNetwork < handle
                 
                 % Learn
                 obj.initialize_delta();
-                predictions = obj.forward_propagate(obj.input_holder(:,2:obj.input_size(2)));
+                predictions = obj.forward_propagate(obj.input_holder(:,2:obj.input_size(2)), obj.hparams.dropout_rate);
                 obj.back_propagate(outputs(random_indices, :), predictions);
 
                 % Dynamic update of learning rate
@@ -146,11 +146,11 @@ classdef LayeredNetwork < handle
         end
 
         % Forward propagate through the layers
-        function [outputs] = forward_propagate(obj, x_inputs)
+        function [outputs] = forward_propagate(obj, x_inputs, dropout_rate)
             outputs = x_inputs;
             for i=1:obj.num_layers
                 % Activate a layer
-                outputs = obj.layers{i}.activation(outputs, obj.weights{i});
+                outputs = obj.layers{i}.activation(outputs, obj.weights{i}, dropout_rate);
             end
         end
         
@@ -175,7 +175,7 @@ classdef LayeredNetwork < handle
             for i=1:num_cases
                 obj.delta{1} = obj.delta{1} + obj.input_holder(i,:)' * obj.layers{1}.error_holder(i,:);
                 for j=2:obj.num_layers
-                    obj.delta{j} = obj.delta{j} + obj.layers{j-1}.weighted_input_holder(i,:)' * obj.layers{j}.error_holder(i,:);
+                    obj.delta{j} = obj.delta{j} + obj.layers{j-1}.activation_holder(i,:)' * obj.layers{j}.error_holder(i,:);
                 end
             end
 
@@ -196,7 +196,7 @@ classdef LayeredNetwork < handle
         function [outputs] = predict(obj, inputs)
             [num_cases, num_features] = size(inputs);
             obj.set_memory_matrix_sizes(num_cases, num_features);
-            outputs = obj.forward_propagate(inputs);
+            outputs = obj.forward_propagate(inputs, 0);
         end
 
         % Cost function
