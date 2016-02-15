@@ -32,8 +32,6 @@ x_test_set = feature_handler.scale_dataset(x_test_set);
 
 % Initialize Hyperparams
 hparams = Hyperparams;
-hparams.min_initial_weight = -1;
-hparams.max_initial_weight = 1;
 hparams.seed = 0;
 hparams.num_iteration = 1000;
 hparams.learning_rate = 0.08;

@@ -45,10 +45,8 @@ x_test_set = x_test_set > 127;
 
 % Initialize Hyperparams
 hparams = Hyperparams;
-hparams.min_initial_weight = -1;
-hparams.max_initial_weight = 1;
 hparams.seed = 0;
-hparams.num_iteration = 100;
+hparams.num_iteration = 1000;
 hparams.learning_rate = 0.03;
 hparams.annealing_constant = 0;
 hparams.momentum = 0.9;
@@ -58,8 +56,8 @@ hparams.dropout_rate = 0;
             
 % Run learning algorithm
 [num_test_cases, num_features] = size(x_training_set);
-nn_neurons = {num_features, 1000, num_labels};
-nn_layers = {SigmoidLayer, SoftmaxOutputLayer};
+nn_neurons = {num_features, 1000, 1000, num_labels};
+nn_layers = {SigmoidLayer, SigmoidLayer, SoftmaxOutputLayer};
 %nn_layers = {ReLU_Layer, ReLU_Layer, SoftmaxOutputLayer};
 nn = LayeredNetwork(nn_neurons, nn_layers);
 nn.penalty_function = Ridge;

@@ -129,7 +129,8 @@ classdef LayeredNetwork < handle
 
                 % Initialize weights if weights are uninitialized
                 if (sum(sum(obj.weights{i} ~= 0)) == 0)
-                    obj.weights{i} = initial_weights_uniform(inputs, outputs, obj.hparams.min_initial_weight, obj.hparams.max_initial_weight, obj.hparams.seed);
+                    init_weight = sqrt(6/(inputs + outputs));
+                    obj.weights{i} = initial_weights_uniform(inputs, outputs, -1*init_weight, init_weight, obj.hparams.seed);
                 end
 
                 % Initialize momentum
@@ -163,6 +164,7 @@ classdef LayeredNetwork < handle
             for i=1:obj.num_layers-1
                 j = obj.num_layers-i;
                 [num_inputs, num_outputs] = size(obj.weights{j+1});
+                
                 % Calculate error
                 output_error = obj.layers{j}.calculate_error(output_error, obj.weights{j+1}(2:num_inputs,:));
             end

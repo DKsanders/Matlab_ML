@@ -3,8 +3,6 @@
 classdef Hyperparams < handle
 	properties
         % Weight Initialization
-        min_initial_weight;
-        max_initial_weight;
         seed;                 % if =0, random initialization
 
         % Learning rates
@@ -21,8 +19,6 @@ classdef Hyperparams < handle
 
 	methods
         function [obj] = Hyperparams()
-            obj.min_initial_weight = -1;
-            obj.max_initial_weight = 1;
             obj.seed = 0;
             obj.num_iteration = 1;
             obj.learning_rate = 0;

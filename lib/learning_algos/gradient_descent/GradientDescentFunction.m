@@ -51,7 +51,8 @@ classdef (Abstract) GradientDescentFunction < handle
             % Initialization
             % Initialize weights if weights are uninitialized
             if (sum(sum(obj.weights ~= 0)) == 0)
-                obj.weights = initial_weights_uniform(obj.num_inputs+1, obj.num_outputs, obj.hparams.min_initial_weight, obj.hparams.max_initial_weight, obj.hparams.seed);
+                init_weight = sqrt(6/(obj.num_inputs+1 + obj.num_outputs));
+                obj.weights = initial_weights_uniform(obj.num_inputs+1, obj.num_outputs, -1*init_weight, init_weight, obj.hparams.seed);
             end
 
             % Initialize batch size
