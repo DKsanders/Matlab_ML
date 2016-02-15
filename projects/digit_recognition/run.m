@@ -69,13 +69,11 @@ nn.learn(hparams, x_training_set, onehot_encode(num_labels,y_training_set));
 
 % Analyze
 training_predictions = nn.predict(x_training_set);
-[temp1, temp2] = max(training_predictions');
-training_guesses = temp2' - 1;
+training_guesses = onehot_decode(training_predictions);
 training_mistakes = (training_guesses - y_training_set) ~= 0;
 training_err = sum(training_mistakes)
 
 test_predictions = nn.predict(x_test_set);
-[temp1, temp2] = max(test_predictions');
-test_guesses = temp2' - 1;
+test_guesses = onehot_decode(test_predictions);
 test_mistakes = (test_guesses - y_test_set) ~= 0;
 test_err = sum(test_mistakes)
