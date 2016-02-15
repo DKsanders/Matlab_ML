@@ -23,9 +23,14 @@ x_test_set = feature_handler.scale_dataset(x_test_set);
 
 % Initialize Hyperparams
 hparams = Hyperparams;
-hparams.learning_rate = 0.01;
-hparams.num_iteration = 10000;
+hparams.seed = 0;
+hparams.num_iteration = 1000;
+hparams.learning_rate = 0.03;
+hparams.annealing_constant = 0;
+hparams.momentum = 0.9;
 hparams.penalty = 0.05;
+hparams.batch_size = 100;
+hparams.dropout_rate = 0;
 
 % Initialize weights
 [num_test_cases, num_features] = size(x_training_set);
