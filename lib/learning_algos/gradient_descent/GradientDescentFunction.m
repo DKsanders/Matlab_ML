@@ -3,7 +3,6 @@
 classdef (Abstract) GradientDescentFunction < handle
 
     properties
-        hparams;                    % Hyperparameters
         cost_function;              % Cost function used in gradient descent
         prediction_function;        % Prediction function used in gradient descent
         penalty_function;           % Penalty function used in gradient descent
@@ -13,6 +12,10 @@ classdef (Abstract) GradientDescentFunction < handle
     end
 
     methods
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %                     Constructor                       %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
         % Default function for penalty - no penalization
         function [obj] = GradientDescentFunction()
             % Set penalty function to zero function 
@@ -23,11 +26,11 @@ classdef (Abstract) GradientDescentFunction < handle
             obj.num_outputs = 0;
         end
         
-        % Learn using gradient descent
-        % Inputs:
-        %  hyperparams: Hyperparams object
-        %  x_training_set: Training set inputs
-        %  y_training_set: Training set outputs
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %                  Learning Algorithm                   %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        % Learn the weights with training input through gradient descent
         function [] = learn(obj, hparams, x_training_set, y_training_set)
             % Get input and output sizes
             [num_cases, num_inputs] = size(x_training_set);
@@ -41,9 +44,6 @@ classdef (Abstract) GradientDescentFunction < handle
                 obj.num_outputs = num_outputs;
             end
 
-            % Save hyperparameters
-            obj.hparams = hparams;
-
             % Extend x0
             feature_handler = InputFeatureHandler;
             x_training_set = feature_handler.extend_x0(x_training_set);
@@ -52,37 +52,40 @@ classdef (Abstract) GradientDescentFunction < handle
             % Initialize weights if weights are uninitialized
             if (sum(sum(obj.weights ~= 0)) == 0)
                 init_weight = sqrt(6/(obj.num_inputs+1 + obj.num_outputs));
-                obj.weights = initial_weights_uniform(obj.num_inputs+1, obj.num_outputs, -1*init_weight, init_weight, obj.hparams.seed);
+                obj.weights = initial_weights_uniform(obj.num_inputs+1, obj.num_outputs, -1*init_weight, init_weight, hparams.seed);
             end
 
             % Initialize batch size
             [num_cases, num_features] = size(x_training_set);
-            if (obj.hparams.batch_size == 0)
-                obj.hparams.batch_size = num_cases;
+            if (hparams.batch_size ~= 0)
+                batch_size = hparams.batch_size;
+            else            
+                batch_size = num_cases;
             end
 
             % Initialize global learning rate
-            global_learning_rate = obj.hparams.learning_rate;
-            if (obj.hparams.learning_rate == 0)
+            if (hparams.learning_rate == 0)
                 global_learning_rate = 1;
                 prev_cost = 0;
+            else
+                global_learning_rate = hparams.learning_rate;
             end
 
             % Initialize momentum
             momentum = zeros(size(obj.weights));
 
             % Learn
-            for i=1:obj.hparams.num_iteration
+            for i=1:hparams.num_iteration
                 % Fetch input batch
-                random_indices = randperm(num_cases, obj.hparams.batch_size)';
+                random_indices = randperm(num_cases, batch_size)';
                 inputs = x_training_set(random_indices, :);
 
                 % Gradient Descent
                 y_prediction = obj.activation(inputs);
-                delta = obj.descent(inputs, y_training_set(random_indices, :), y_prediction);
+                delta = obj.cost_function.derivative(inputs, y_training_set(random_indices, :), y_prediction);
 
                 % Dynamic update of learning rate
-                if (obj.hparams.learning_rate == 0)
+                if (hparams.learning_rate == 0)
                     current_cost = obj.cost_function.cost(y_training_set(random_indices, :), y_prediction);
                     if (current_cost < prev_cost)
                         global_learning_rate = global_learning_rate * 1.01;
@@ -91,39 +94,29 @@ classdef (Abstract) GradientDescentFunction < handle
                     end
                     prev_cost = current_cost;
                 end
-                if (obj.hparams.annealing_constant == 0)
-                    annealing = 1;
+                if (hparams.annealing_constant == 0)
+                    learning_rate = global_learning_rate;
                 else
-                    annealing = (1 + i/obj.hparams.annealing_constant);
-                end 
-                learning_rate = global_learning_rate / annealing;
+                    learning_rate = global_learning_rate / (1 + i/hparams.annealing_constant);
+                end
 
                 % Weight updates
                 % Momentum            
-                momentum = obj.hparams.momentum * momentum + delta;
+                momentum = hparams.momentum * momentum + delta;
 
                 % Learning
                 obj.weights = obj.weights - learning_rate * momentum;
 
                 % Penalization
-                obj.weights = obj.weights - learning_rate * obj.penalty(obj.hparams.penalty, obj.hparams.batch_size);
+                obj.weights = obj.weights - learning_rate * obj.penalty_function.penalty(hparams.penalty, obj.weights, batch_size);
             end
         end
 
-        % Cost functions
-        function [cost] = cost(obj, x_inputs, y_outputs)
-            y_predictions = obj.predict(x_inputs);
-            cost = obj.cost_function.cost(y_outputs, y_predictions);
-        end
-        function [delta] = descent(obj, x_inputs, y_outputs, y_predictions)
-            delta = obj.cost_function.derivative(x_inputs, y_outputs, y_predictions);
-        end
-        
-        % Prediction functions
-        function [activation] = activation(obj, x_inputs)
-            z = x_inputs * obj.weights;
-            activation = obj.prediction_function.activation(z);
-        end
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %                 Prediction Function                   %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        % Output prediction of algorithm
         function [prediction] = predict(obj, x_inputs)
             % Extend x0
             feature_handler = InputFeatureHandler;
@@ -131,11 +124,20 @@ classdef (Abstract) GradientDescentFunction < handle
 
             prediction = obj.activation(x_inputs);
         end
-        
-        % Penalty function
-        function [penalty] = penalty(obj, lambda, num_cases)
-            penalty = obj.penalty_function.penalty(lambda, obj.weights, num_cases);
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %                    Cost Function                      %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        % Cost function
+        function [cost] = cost(obj, x_inputs, y_outputs)
+            y_predictions = obj.predict(x_inputs);
+            cost = obj.cost_function.cost(y_outputs, y_predictions);
         end
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %               Save and Restore weights                %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         % Save weights learned by neural network in a file
         function [] = save_weights(obj, file_name);
@@ -145,6 +147,14 @@ classdef (Abstract) GradientDescentFunction < handle
         % Restore weights learned by neural network saved in a file
         function [] = restore_weights(obj, file_name);
             obj.weights = restore_weights(file_name);
+        end
+    end
+    
+    methods (Access = {?protected})
+        % Prediction function
+        function [activation] = activation(obj, x_inputs)
+            z = x_inputs * obj.weights;
+            activation = obj.prediction_function.activation(z);
         end
     end
 end
