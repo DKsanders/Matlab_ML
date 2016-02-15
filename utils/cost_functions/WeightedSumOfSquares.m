@@ -3,8 +3,8 @@ classdef WeightedSumOfSquares < CostFunction
 
     methods
         % cost = Σ ( prediction - y )^2 / N
-        function [cost] = cost(obj, x_inputs, y_outputs, y_predictions)
-            [num_cases, num_features] = size(x_inputs);
+        function [cost] = cost(obj, y_outputs, y_predictions)
+            [num_cases, num_outputs] = size(y_outputs);
             cost = 1/(num_cases)*sum(sum((y_predictions - y_outputs).^2));
         end
 

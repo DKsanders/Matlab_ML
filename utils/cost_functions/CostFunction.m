@@ -11,7 +11,7 @@ classdef (Abstract) CostFunction
     methods (Abstract)
         % Cost function
         % Output is a single value
-        cost = cost(obj, x_inputs, y_outputs, y_predictions)
+        cost = cost(obj, y_outputs, y_predictions)
 
         % Output error used in backpropagation of neural networks
         output_error = calculate_error(obj, y_outputs, y_predictions)

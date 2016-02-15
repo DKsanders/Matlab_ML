@@ -4,8 +4,8 @@ classdef CrossEntropyCostFunction < CostFunction
 
     methods
         % cost = Σ y*log( P(y) ) + (1-y)*log( 1-P(y) ) / N
-        function [cost] = cost(obj, x_inputs, y_outputs, y_predictions)
-            [num_cases, num_features] = size(x_inputs);
+        function [cost] = cost(obj, y_outputs, y_predictions)
+            [num_cases, num_outputs] = size(y_outputs);
             cost = 2/(num_cases)*sum(sum(-1*( y_outputs.*log(y_predictions) + (1-y_outputs).*log(1-y_predictions))));
         end
 

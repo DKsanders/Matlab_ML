@@ -90,7 +90,7 @@ classdef LayeredNetwork < handle
 
                 % Dynamic update of learning rate
                 if (obj.hparams.learning_rate == 0)
-                    current_cost = obj.layers{obj.num_layers}.cost_function.cost(obj.input_holder(:,2:obj.input_size(2)), outputs(random_indices, :), predictions);
+                    current_cost = obj.layers{obj.num_layers}.cost_function.cost(outputs(random_indices, :), predictions);
                     if (current_cost < prev_cost)
                         global_learning_rate = global_learning_rate * 1.01;
                     else
@@ -202,7 +202,7 @@ classdef LayeredNetwork < handle
         % Cost function
         function [cost] = cost(obj, x_inputs, y_outputs)
             y_predictions = obj.predict(x_inputs);
-            cost = obj.layers{obj.num_layers}.cost_function.cost(x_inputs, y_outputs, y_predictions);
+            cost = obj.layers{obj.num_layers}.cost_function.cost(y_outputs, y_predictions);
         end
 
         % Save weights learned by neural network in a file
