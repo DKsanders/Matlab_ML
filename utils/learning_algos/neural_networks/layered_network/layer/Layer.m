@@ -56,6 +56,13 @@ classdef Layer < handle
             
             % Activate 
             outputs = obj.activation_function.activation(obj.weighted_input_holder(:, 2:obj.weighted_input_size(2)));
+            
+            % Dropout
+            if (dropout_rate ~= 0)
+                [n, m] = size(outputs);
+                dropout_matrix = rand(n, m) > dropout_rate;
+                outputs = outputs .* dropout_matrix;
+            end
 
             % Save activations
             obj.activation_holder(:, 2:obj.activation_size(2)) = outputs;

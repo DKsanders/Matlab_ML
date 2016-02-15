@@ -28,7 +28,7 @@ classdef (Abstract) GradientDescentFunction < handle
         %  hyperparams: Hyperparams object
         %  x_training_set: Training set inputs
         %  y_training_set: Training set outputs
-        function [cost] = learn(obj, hparams, x_training_set, y_training_set)
+        function [] = learn(obj, hparams, x_training_set, y_training_set)
             % Get input and output sizes
             [num_cases, num_inputs] = size(x_training_set);
             [num_cases, num_outputs] = size(y_training_set);
@@ -79,10 +79,10 @@ classdef (Abstract) GradientDescentFunction < handle
                 % Gradient Descent
                 y_prediction = obj.activation(inputs);
                 delta = obj.descent(inputs, y_training_set(random_indices, :), y_prediction);
-                
+
                 % Dynamic update of learning rate
                 if (obj.hparams.learning_rate == 0)
-                    current_cost = obj.cost_function.cost(inputs, y_training_set(random_indices, :), y_prediction);
+                    current_cost = obj.cost_function.cost(y_training_set(random_indices, :), y_prediction);
                     if (current_cost < prev_cost)
                         global_learning_rate = global_learning_rate * 1.01;
                     else
@@ -112,7 +112,7 @@ classdef (Abstract) GradientDescentFunction < handle
         % Cost functions
         function [cost] = cost(obj, x_inputs, y_outputs)
             y_predictions = obj.predict(x_inputs);
-            cost = obj.cost_function.cost(x_inputs, y_outputs, y_predictions);
+            cost = obj.cost_function.cost(y_outputs, y_predictions);
         end
         function [delta] = descent(obj, x_inputs, y_outputs, y_predictions)
             delta = obj.cost_function.derivative(x_inputs, y_outputs, y_predictions);

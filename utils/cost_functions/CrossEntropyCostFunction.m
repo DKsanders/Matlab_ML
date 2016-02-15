@@ -1,4 +1,4 @@
-% Cross-entropy (Bernoulli likelihood) cost function used for binary classification
+% Cross-entropy (Bernoulli likelihood) cost function used for classification
 % y corresponds to P(x=1)
 classdef CrossEntropyCostFunction < CostFunction
 

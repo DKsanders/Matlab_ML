@@ -9,6 +9,8 @@ clc;
 close all;
 
 % Read in data, produce training and testing sets
+num_labels = 10;
+
 x_training_file = 'train_images';
 fileID = fopen(x_training_file);
 x_data = fread(fileID);
@@ -46,23 +48,24 @@ hparams = Hyperparams;
 hparams.min_initial_weight = -1;
 hparams.max_initial_weight = 1;
 hparams.seed = 0;
-hparams.num_iteration = 1000;
+hparams.num_iteration = 100;
 hparams.learning_rate = 0.03;
 hparams.annealing_constant = 0;
 hparams.momentum = 0.9;
 hparams.penalty = 0.05;
 hparams.batch_size = 100;
-%obj.dropout_rate = 0;
+hparams.dropout_rate = 0;
             
 % Run learning algorithm
 [num_test_cases, num_features] = size(x_training_set);
-nn_neurons = {num_features, 1000, 1000, 10};
-nn_layers = {SigmoidLayer, SigmoidLayer, SoftmaxOutputLayer};
+nn_neurons = {num_features, 1000, num_labels};
+nn_layers = {SigmoidLayer, SoftmaxOutputLayer};
+%nn_layers = {ReLU_Layer, ReLU_Layer, SoftmaxOutputLayer};
 nn = LayeredNetwork(nn_neurons, nn_layers);
 nn.penalty_function = Ridge;
-nn.restore_weights('architecture2.weights');
-nn.learn(hparams, x_training_set, y_training_set);
-nn.save_weights('architecture2.weights');
+%nn.restore_weights('architecture2.weights');
+nn.learn(hparams, x_training_set, onehot_encode(num_labels,y_training_set));
+%nn.save_weights('architecture2.weights');
 
 % Analyze
 training_predictions = nn.predict(x_training_set);

@@ -9,13 +9,14 @@ close all;
 % Read in data, produce training, validation and testing sets
 x_file = 'ClassificationX.txt';
 y_file = 'ClassificationY.txt';
+num_labels = 2;
 [initial_num_features, x_data, y_data] = read_data_from_two_files(x_file,y_file, ' ');
 x_training_set(:,1:initial_num_features) = x_data(1:50, 1:initial_num_features);
 x_validation_set(:,1:initial_num_features) = x_data(51:100, 1:initial_num_features);
 x_test_set(:,1:initial_num_features) = x_data(101:200, 1:initial_num_features);
-y_training_set(:,1) = y_data(1:50);
-y_validation_set(:,1) = y_data(51:100);
-y_test_set(:,1) = y_data(101:200);
+y_training_set(:,:) = onehot_encode(num_labels, y_data(1:50));
+y_validation_set(:,:) = onehot_encode(num_labels, y_data(51:100));
+y_test_set(:,:) = onehot_encode(num_labels, y_data(101:200));
 
 % Extend feature set
 feature_handler = InputFeatureHandler;
@@ -45,7 +46,7 @@ hparams.batch_size = 0;
 
 % Run learning algorithm
 [num_test_cases, num_features] = size(x_training_set);
-gd = SoftmaxRegression(2);
+gd = SoftmaxRegression(num_labels);
 gd.penalty_function = Ridge;
 %gd.restore_weights('weights.txt');
 gd.learn(hparams, x_training_set, y_training_set);

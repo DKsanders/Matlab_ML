@@ -6,7 +6,7 @@ classdef SoftmaxOutputLayer < OutputLayer
         % Set activation functino to sigmoid
         function [obj] = SoftmaxOutputLayer()
             obj.activation_function = SoftmaxActivation;
-            obj.cost_function = MultiLabelClassificationCostFunction;
+            obj.cost_function = CrossEntropyCostFunction;
         end
     end
 end
