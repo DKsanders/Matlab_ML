@@ -51,8 +51,7 @@ classdef (Abstract) GradientDescentFunction < handle
             % Initialization
             % Initialize weights if weights are uninitialized
             if (sum(sum(obj.weights ~= 0)) == 0)
-                init_weight = sqrt(6/(obj.num_inputs+1 + obj.num_outputs));
-                obj.weights = initial_weights_uniform(obj.num_inputs+1, obj.num_outputs, -1*init_weight, init_weight, hparams.seed);
+                obj.initialize_weights(hparams.seed);
             end
 
             % Initialize batch size
@@ -136,8 +135,14 @@ classdef (Abstract) GradientDescentFunction < handle
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %               Save and Restore weights                %
+        %         Save / Restore / Initialize Weights           %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        % Random initialize weights
+        function [] = initialize_weights(obj, seed)
+            init_weight = sqrt(6/(obj.num_inputs+1 + obj.num_outputs));
+            obj.weights = initial_weights_uniform(obj.num_inputs+1, obj.num_outputs, -1*init_weight, init_weight, seed);
+        end
 
         % Save weights learned by neural network in a file
         function [] = save_weights(obj, file_name);

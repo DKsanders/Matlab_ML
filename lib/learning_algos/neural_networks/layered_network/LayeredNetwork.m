@@ -61,6 +61,7 @@ classdef LayeredNetwork < handle
 
         % Learn the weights with training input
         function [] = learn(obj, hparams, inputs, outputs)
+
             % Initialization
             [num_cases, num_features] = size(inputs);
 
@@ -122,8 +123,17 @@ classdef LayeredNetwork < handle
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %               Save and Restore weights                %
+        %         Save / Restore / Initialize Weights           %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        % Random initialize weights
+        function [] = initialize_weights(obj, seed)
+            for i =1:obj.num_layers 
+                [inputs, outputs] = size(obj.weights{i});
+                init_weight = sqrt(6/(inputs + outputs));
+                obj.weights{i} = initial_weights_uniform(inputs, outputs, -1*init_weight, init_weight, seed);
+            end
+        end
 
         % Save weights learned by neural network in a file
         function [] = save_weights(obj, file_name);
@@ -157,17 +167,19 @@ classdef LayeredNetwork < handle
                 global_learning_rate = hparam_learning_rate;
             end
 
+            valid_weights = 0;
             for i=1:obj.num_layers
                 [inputs, outputs] = size(obj.weights{i});
 
                 % Initialize weights if weights are uninitialized
-                if (sum(sum(obj.weights{i} ~= 0)) == 0)
-                    init_weight = sqrt(6/(inputs + outputs));
-                    obj.weights{i} = initial_weights_uniform(inputs, outputs, -1*init_weight, init_weight, seed);
-                end
+                valid_weights = valid_weights + sum(sum(obj.weights{i} ~= 0));
 
                 % Initialize momentum
                 obj.momentum{i} = zeros(inputs, outputs);
+            end
+
+            if ~valid_weights
+                obj.initialize_weights(seed);
             end
         end
 
@@ -183,7 +195,7 @@ classdef LayeredNetwork < handle
                 obj.layers{i}.set_memory_matrix_sizes(batch_size, num_inputs, num_outputs);
             end
         end
-        
+
         % Initialize delta
         function [outputs] = initialize_delta(obj)
             for i=1:obj.num_layers
