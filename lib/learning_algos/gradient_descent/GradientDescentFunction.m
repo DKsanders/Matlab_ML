@@ -146,12 +146,14 @@ classdef (Abstract) GradientDescentFunction < handle
 
         % Save weights learned by neural network in a file
         function [] = save_weights(obj, file_name);
-            save_weights(file_name, obj.weights);
+            save_weights_var = obj.weights;
+            save(file_name, 'save_weights_var');
         end
 
         % Restore weights learned by neural network saved in a file
         function [] = restore_weights(obj, file_name);
-            obj.weights = restore_weights(file_name);
+            load(file_name);
+            obj.weights = save_weights_var;
         end
     end
     
