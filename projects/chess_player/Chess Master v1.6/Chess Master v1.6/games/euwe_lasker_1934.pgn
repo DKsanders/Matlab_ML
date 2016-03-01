@@ -1,0 +1,23 @@
+[Event "Zurich"]
+[Site "Zurich SWI"]
+[Date "1934.07.14"]
+[EventDate "1934.07.14"]
+[Round "1"]
+[Result "0-1"]
+[White "Max Euwe"]
+[Black "Emanuel Lasker"]
+[ECO "D52"]
+[WhiteElo "?"]
+[BlackElo "?"]
+[PlyCount "100"]
+
+1.d4 d5 2.c4 e6 3.Nc3 Nf6 4.Bg5 Nbd7 5.e3 c6 6.Nf3 Be7 7.Qc2
+O-O 8.a3 Re8 9.Rc1 dxc4 10.Bxc4 Nd5 11.Bxe7 Qxe7 12.Ne4 N5f6
+13.Ng3 c5 14.O-O cxd4 15.Nxd4 Nb6 16.Ba2 Rb8 17.e4 Rd8 18.Rfd1
+Bd7 19.e5 Ne8 20.Bb1 g6 21.Qe4 Ba4 22.b3 Bd7 23.a4 Nd5 24.Bd3
+Rbc8 25.Bc4 Bc6 26.Nxc6 bxc6 27.Rd3 Nb4 28.Rf3 Rc7 29.h4 Rcd7
+30.h5 Qg5 31.Re1 Rd4 32.hxg6 hxg6 33.Qe2 Rd2 34.Qf1 Nc2 35.Ne4
+Qxe5 36.Nf6+ Qxf6 37.Rxf6 Nxf6 38.Rc1 Ne4 39.Be2 Nd4 40.Bf3
+Nxf2 41.Qc4 Nd3 42.Rf1 Ne5 43.Qb4 Nexf3+ 44.gxf3 Ne2+ 45.Kh2
+Nf4+ 46.Kh1 R2d4 47.Qe7 Kg7 48.Qc7 R8d5 49.Re1 Rg5 50.Qxc6 Rd8
+0-1

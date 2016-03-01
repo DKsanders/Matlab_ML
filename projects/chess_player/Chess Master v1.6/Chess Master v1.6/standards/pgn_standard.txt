@@ -1,0 +1,2 @@
+See <http://www.saremba.de/chessgml/standards/pgn/pgn-complete.htm#c8.1.1>
+for complete PGN standard
