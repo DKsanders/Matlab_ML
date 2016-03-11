@@ -117,8 +117,8 @@ classdef BoardState < handle
             fromi = mod(from_square-1, 8)+1;
             toj = floor((to_square-1) / 8)+1;
             toi = mod(to_square-1, 8)+1;
-            if (toi == 8 && piece_id == 1)
-                pID = 'Q';
+            if (toj == 8 && piece_id == 1)
+                pID = 5;
             end
             
             if (color == BLACK)
