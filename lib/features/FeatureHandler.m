@@ -1,21 +1,32 @@
-% Class responsible for handling extension and scaling of input features
-classdef InputFeatureHandler < handle
+% Class responsible for handling extension and scaling of features
+classdef FeatureHandler < handle
 
     properties
         num_features;       % Number of input features (excluding x0, including extended features)
         order;              % Polynomial degree initial features get extended to
+
         myu;                % Averages of each input feature
         sigma;              % std's of each input feature
+
+        transform_matrix;
+        eigen_matrix;
     end
 
     methods
-        % Constructors
-        function [obj] = InputFeatureHandler()
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %                     Constructor                       %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        function [obj] = FeatureHandler()
             obj.num_features = 0;
             obj.order = 1;
             obj.myu = [];
             obj.sigma = [];
         end
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %                  Feature Extension                    %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         % Extend x0
         function [output_set] = extend_x0(obj, input_set)
@@ -62,24 +73,78 @@ classdef InputFeatureHandler < handle
             end
         end
 
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %                    Normalization                      %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
         % Get the myu and sigma for the data set
-        function [] = get_scaling_params(obj, input_set)
+        function [] = get_normalization_params(obj, input_set)
             [num_cases, num_features] = size(input_set);
             obj.num_features = num_features;
 
-            obj.myu = mean(input_set(:,1:obj.num_features));
-            obj.sigma = sqrt(var(input_set(:,1:obj.num_features)));
+            obj.myu = mean(input_set);
+            obj.sigma = std(input_set);
         end
 
         % After getting data on μ and σ from get_scaling_params,
-        % call this function to scale datasets
-        function [output_set] = scale_dataset(obj, input_set)
+        % call this function to normalize dataset
+        function [output_set] = normalize_dataset(obj, input_set)
             % Initialization
             [num_cases, num_features] = size(input_set);
             output_set = zeros(num_cases, obj.num_features);
 
             % Normalize x： x' = (x-μ)/σ
             output_set(:,:) = (input_set(:,:)-repmat(obj.myu,num_cases,1))./repmat(obj.sigma,num_cases,1);
+        end
+
+
+        % After getting data on μ and σ from get_scaling_params,
+        % call this function to denormalize dataset
+        function [output_set] = denormalize_dataset(obj, input_set)
+            % Initialization
+            [num_cases, num_features] = size(input_set);
+            output_set = zeros(num_cases, obj.num_features);
+
+            % Normalize x： x = (x' * σ) + μ
+            output_set(:,:) = input_set(:,:).*repmat(obj.sigma,num_cases,1) + repmat(obj.myu,num_cases,1);
+        end        
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %             Principal Component Analysis              %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        function [] = get_covariance(obj, input_set)
+            % Find size of data set
+            [num_cases, num_features] = size(input_set);
+
+            % Compute Covariance Matrix
+            % Σ = 1/m * Σ(xi * xi')
+            Covariance = input_set' * input_set / num_cases;
+
+            % Compute Eigen Vectors of Sigma
+            [obj.transform_matrix, obj.eigen_matrix, V] = svd(Covariance);
+        end
+
+        function [output_set, variance_retained] = reduce_to_dim(obj, input_set, dim)
+            output_set = input_set * obj.transform_matrix(:, 1:dim);
+            variance_retained = sum(diag(obj.eigen_matrix(1:dim, 1:dim)))/ trace(obj.eigen_matrix);
+        end
+
+        function [output_set, dim] = reduce_to_variance_retained(obj, input_set, variance_retained)
+            current = 0;
+            dim = 0;
+            target = trace(obj.eigen_matrix) * variance_retained;
+            while current < target
+                dim = dim + 1;
+                current = current + obj.eigen_matrix(dim, dim);
+            end
+
+            output_set = input_set * obj.transform_matrix(:, 1:dim);
+        end
+
+        function [output_set] = reconstruct(obj, input_set)
+            [num_cases, num_features] = size(input_set);
+            output_set = input_set * obj.transform_matrix(:, 1:num_features)';
         end
     end
 end

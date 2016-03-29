@@ -9,7 +9,7 @@ classdef LinearRegression < GradientDescentFunction
         
         function [] = normal_equation(obj, x_inputs, y_outputs)
             % Extend x0
-            feature_handler = InputFeatureHandler;
+            feature_handler = FeatureHandler;
             x = feature_handler.extend_x0(x_inputs);
             
             obj.weights = pinv(x' * x) * x' * y_outputs;

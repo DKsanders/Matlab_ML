@@ -18,17 +18,17 @@ y_validation_set(:,1) = y_data(51:100);
 y_test_set(:,1) = y_data(101:200);
 
 % Extend feature set
-feature_handler = InputFeatureHandler;
+feature_handler = FeatureHandler;
 feature_handler.order = 10;
 x_training_set = feature_handler.extend_to_mixed_kth_polynomial(x_training_set);
 x_validation_set = feature_handler.extend_to_mixed_kth_polynomial(x_validation_set);
 x_test_set = feature_handler.extend_to_mixed_kth_polynomial(x_test_set);
 
 % Feature scaling
-feature_handler.get_scaling_params(x_training_set);
-x_training_set = feature_handler.scale_dataset(x_training_set);
-x_validation_set = feature_handler.scale_dataset(x_validation_set);
-x_test_set = feature_handler.scale_dataset(x_test_set);
+feature_handler.get_normalization_params(x_training_set);
+x_training_set = feature_handler.normalize_dataset(x_training_set);
+x_validation_set = feature_handler.normalize_dataset(x_validation_set);
+x_test_set = feature_handler.normalize_dataset(x_test_set);
 
 % Initialize Hyperparams
 hparams = Hyperparams;
@@ -59,6 +59,6 @@ test_err = nn.cost(x_test_set, y_test_set)
 % Plot
 x_axis = linspace(0, 10 , 1000)';
 x_temp = feature_handler.extend_to_mixed_kth_polynomial(x_axis);
-x_temp = feature_handler.scale_dataset(x_temp);
+x_temp = feature_handler.normalize_dataset(x_temp);
 y_axis = nn.predict(x_temp);
 plot(x_data(1:50,:), y_data(1:50,:), 'ro', x_axis(:,1), y_axis(:,1));

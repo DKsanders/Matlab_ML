@@ -45,7 +45,7 @@ classdef (Abstract) GradientDescentFunction < handle
             end
 
             % Extend x0
-            feature_handler = InputFeatureHandler;
+            feature_handler = FeatureHandler;
             x_training_set = feature_handler.extend_x0(x_training_set);
 
             % Initialization
@@ -118,7 +118,7 @@ classdef (Abstract) GradientDescentFunction < handle
         % Output prediction of algorithm
         function [prediction] = predict(obj, x_inputs)
             % Extend x0
-            feature_handler = InputFeatureHandler;
+            feature_handler = FeatureHandler;
             x_inputs = feature_handler.extend_x0(x_inputs);
 
             prediction = obj.activation(x_inputs);

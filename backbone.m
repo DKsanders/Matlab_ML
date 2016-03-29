@@ -9,17 +9,17 @@ close all;
 % Read in data, produce training, validation and testing sets
 
 % Extend feature set
-feature_handler = InputFeatureHandler;
+feature_handler = FeatureHandler;
 feature_handler.order = 20;
 x_training_set = feature_handler.extend_to_mixed_kth_polynomial(x_training_set);
 x_validation_set = feature_handler.extend_to_mixed_kth_polynomial(x_validation_set);
 x_test_set = feature_handler.extend_to_mixed_kth_polynomial(x_test_set);
 
 % Feature scaling
-feature_handler.get_scaling_params(x_training_set);
-x_training_set = feature_handler.scale_dataset(x_training_set);
-x_validation_set = feature_handler.scale_dataset(x_validation_set);
-x_test_set = feature_handler.scale_dataset(x_test_set);
+feature_handler.get_normalization_params(x_training_set);
+x_training_set = feature_handler.normalize_dataset(x_training_set);
+x_validation_set = feature_handler.normalize_dataset(x_validation_set);
+x_test_set = feature_handler.normalize_dataset(x_test_set);
 
 % Initialize Hyperparams
 hparams = Hyperparams;
