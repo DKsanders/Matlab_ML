@@ -60,10 +60,10 @@ classdef ClusteringFunction < handle
         end
 
         % Try clustering with multiple values of K and plot cost of each
-        function [] = sweep_k(obj, num_iteration, x_training, max_k)
+        function [recommended_k] = sweep_k(obj, num_iteration, x_training, max_k)
             % Initialize
             k = [1:max_k];
-            cost = zeros(1, length(k));
+            cost = zeros(1, max_k);
             
             % Learn with various parameters
             for i = 1:max_k
@@ -81,6 +81,13 @@ classdef ClusteringFunction < handle
             title('Sweep: Number of Clusters')
             xlabel('Number of Clusters')
             ylabel('Error')
+
+            % Find recommended k
+            measure = zeros(1, max_k);
+            for i = 2:max_k-1
+                measure(i) = (cost(i-1) - cost(i)) / (cost(i) - cost(i+1));
+            end
+            [dummy, recommended_k] = max(measure);
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
