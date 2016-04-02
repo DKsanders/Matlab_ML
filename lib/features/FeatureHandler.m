@@ -84,6 +84,8 @@ classdef FeatureHandler < handle
 
             obj.myu = mean(input_set);
             obj.sigma = std(input_set);
+            
+            obj.sigma = obj.sigma + (obj.sigma == 0);
         end
 
         % After getting data on μ and σ from get_scaling_params,
