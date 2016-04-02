@@ -24,22 +24,30 @@ classdef ClusteringFunction < handle
             % Repeat the algorithm 100 times and get the best
             best_cost = -1;
             best_centroids = [];
+            prev_cluster_ids = [];
 
-            for i = 1:1
+            for i = 1:100
                 % Randomly initialize cluster centroids
                 obj.initialize_centroids(x_training_set, k, 0);
 
-                for i = 1:num_iteration
+                for j = 1:num_iteration
                     % index clusters closest to x
                     cluster_id = obj.predict(x_training_set);
 
-                    % Find new cluster centroids
-                    for i = 1:k
-                        current_ids = (cluster_id == i);
-                        obj.cluster_centroids(i, :) = sum(bsxfun(@times, x_training_set, current_ids)) ./ sum(current_ids);
+                    if (best_cost ~= -1 && ~sum(cluster_id ~= prev_cluster_ids))
+                        break;
                     end
+
+                    % Find new cluster centroids
+                    for l = 1:k
+                        current_ids = (cluster_id == l);
+                        obj.cluster_centroids(l, :) = sum(bsxfun(@times, x_training_set, current_ids)) ./ sum(current_ids);
+                    end
+
+                    prev_cluster_ids = cluster_id;
                 end
 
+                % Keep track of best performing clustering
                 cost = obj.cost(x_training_set);
                 if (cost < best_cost || best_cost == -1) 
                     best_cost = cost;
@@ -47,8 +55,32 @@ classdef ClusteringFunction < handle
                 end
             end
 
+            % Set cluster centroids to best performing out of 100
             obj.cluster_centroids = best_centroids;
-            best_cost
+        end
+
+        % Try clustering with multiple values of K and plot cost of each
+        function [] = sweep_k(obj, num_iteration, x_training, max_k)
+            % Initialize
+            k = [1:max_k];
+            cost = zeros(1, length(k));
+            
+            % Learn with various parameters
+            for i = 1:max_k
+                i
+                % Learn with i clusters
+                obj.learn(num_iteration, x_training, i);
+
+                % Get cost
+                cost(i) = obj.cost(x_training);
+            end
+
+            % Plot
+            figure;
+            plot(k, cost, '-bx')
+            title('Sweep: Number of Clusters')
+            xlabel('Number of Clusters')
+            ylabel('Error')
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
