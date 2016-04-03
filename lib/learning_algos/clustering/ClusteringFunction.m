@@ -132,7 +132,7 @@ classdef ClusteringFunction < handle
 
         % Save centroids learned by clustering algorithm in a file
         function [] = save_centroids(obj, file_name);
-            save_weights_var = obj.cluster_centroids;
+            save_centroids_var = obj.cluster_centroids;
             save(file_name, 'save_centroids_var');
         end
 

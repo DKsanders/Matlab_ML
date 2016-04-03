@@ -5,7 +5,7 @@ classdef FeatureHandler < handle
         num_features;       % Number of input features (excluding x0, including extended features)
         order;              % Polynomial degree initial features get extended to
 
-        myu;                % Averages of each input feature
+        mu;                % Averages of each input feature
         sigma;              % std's of each input feature
 
         transform_matrix;
@@ -20,7 +20,7 @@ classdef FeatureHandler < handle
         function [obj] = FeatureHandler()
             obj.num_features = 0;
             obj.order = 1;
-            obj.myu = [];
+            obj.mu = [];
             obj.sigma = [];
         end
 
@@ -77,14 +77,15 @@ classdef FeatureHandler < handle
         %                    Normalization                      %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        % Get the myu and sigma for the data set
+        % Get the mu and sigma for the data set
         function [] = get_normalization_params(obj, input_set)
             [num_cases, num_features] = size(input_set);
             obj.num_features = num_features;
 
-            obj.myu = mean(input_set);
-            obj.sigma = std(input_set);
+            obj.mu = mean(input_set);
+            obj.sigma = sqrt(sum(bsxfun(@minus, input_set, obj.mu).^2)./num_cases);
             
+            % For 0 variance data sets, use unit variance
             obj.sigma = obj.sigma + (obj.sigma == 0);
         end
 
@@ -96,7 +97,7 @@ classdef FeatureHandler < handle
             output_set = zeros(num_cases, obj.num_features);
 
             % Normalize x： x' = (x-μ)/σ
-            output_set(:,:) = (input_set(:,:)-repmat(obj.myu,num_cases,1))./repmat(obj.sigma,num_cases,1);
+            output_set(:,:) = (input_set(:,:)-repmat(obj.mu,num_cases,1))./repmat(obj.sigma,num_cases,1);
         end
 
 
@@ -108,7 +109,7 @@ classdef FeatureHandler < handle
             output_set = zeros(num_cases, obj.num_features);
 
             % Normalize x： x = (x' * σ) + μ
-            output_set(:,:) = input_set(:,:).*repmat(obj.sigma,num_cases,1) + repmat(obj.myu,num_cases,1);
+            output_set(:,:) = input_set(:,:).*repmat(obj.sigma,num_cases,1) + repmat(obj.mu,num_cases,1);
         end        
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
