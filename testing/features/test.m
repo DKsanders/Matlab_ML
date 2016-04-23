@@ -15,22 +15,23 @@ f.get_normalization_params(x_training);
 compressed_im_training = f.normalize_dataset(x_training);
 compressed_im_test = f.normalize_dataset(x_test);
 
-f.get_covariance(compressed_im_training);
-[compressed_im_tr, dim] = f.reduce_to_variance_retained(compressed_im_training, varaince_retained);
-[compressed_im_tst, var] = f.reduce_to_dim(compressed_im_test, dim);
+%f.get_covariance(compressed_im_training);
+%[compressed_im_tr, dim] = f.reduce_to_variance_retained(compressed_im_training, varaince_retained);
+%[compressed_im_tst, var] = f.reduce_to_dim(compressed_im_test, dim);
 
-uncompressed_tr = f.reconstruct(compressed_im_tr);
-uncompressed_tst = f.reconstruct(compressed_im_tst);
+%uncompressed_tr = f.reconstruct(compressed_im_tr);
+%uncompressed_tst = f.reconstruct(compressed_im_tst);
 
-uncompressed_tr = f.denormalize_dataset(uncompressed_tr);
-uncompressed_tst = f.denormalize_dataset(uncompressed_tst);
+uncompressed_tr = f.denormalize_dataset(compressed_im_training);
+uncompressed_tst = f.denormalize_dataset(compressed_im_test);
 
 % Show the 100 faces used for training
-figure;
-visualize_faces(uncompressed_tr);
+%figure;
+%visualize_faces(uncompressed_tr);
 
 % Show 100 random faces
-figure;
-random_indices = randperm(4900, 100)';
-visualize_faces(uncompressed_tst(random_indices, :));
+%figure;
+%random_indices = randperm(4900, 100)';
+%visualize_faces(uncompressed_tst(random_indices, :));
 
+a = x_test - uncompressed_tst;
