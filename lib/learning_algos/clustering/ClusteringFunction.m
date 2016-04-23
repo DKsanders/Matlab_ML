@@ -99,7 +99,7 @@ classdef ClusteringFunction < handle
             [num_case, num_features] = size(x_inputs);
             prediction = zeros(num_case, 1);
             for i = 1:num_case
-                [dummy, prediction(i)] = min(sum((bsxfun(@minus, obj.cluster_centroids, x_inputs(i,:)).^2)')');
+                [dummy, prediction(i)] = min(sum((bsxfun(@minus, obj.cluster_centroids, x_inputs(i,:)).^2), 2)');
             end
         end
 
